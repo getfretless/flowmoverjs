@@ -59,7 +59,7 @@ function timestamp(unixtime) {
 }
 
 function formatMessage(message, users) {
-  var formattedMessage;
+  var formattedMessage = '', nick = '';
   if (message.event === 'action') {
     if (message.content.type === 'invite') {
       formattedMessage = 'Invited '+ message.content.email + ' to flow.';
@@ -72,10 +72,33 @@ function formatMessage(message, users) {
     formattedMessage = message.content.text;
   } else if (message.event === 'message') {
     formattedMessage = message.content;
+  } else if (message.event === 'user-edit') {
+    formattedMessage = message.content.user.name + ' is now known as ' + message.content.user.nick;
+  } else if (message.event === 'rss') {
+    formattedMessage = 'RSS:' + message.content.title + ' posted to ' + message.content.link;
+  } else if (message.event === 'line') {
+    formattedMessage = message.content;
+  } else if (message.event === 'vcs') {
+    if (message.content.pusher && message.content.pusher.name) {
+      formattedMessage = message.content.pusher.name + ' pushed some commits to ' + message.content.compare;
+    } else if (message.content.event === 'gollum') {
+      if (message.content.pages) {
+        for (var i=0; message.content.pages.length > i; i++) {
+          var page = message.content.pages[i]
+          formattedMessage = formattedMessage + message.content.sender.login + ' ' + page.action + ' wiki page ' + page.title + ' at ' + page.html_url + "\n";
+        }
+      }
+    }
+  } else if (message.event === 'mail') {
+    formattedMessage = message.content.subject;
   } else {
     formattedMessage = 'Unknown message type: ' + message;
+    console.log(message);
   }
-  return '[' + timestamp(message.sent) + '] ' + users[message.user].nick + ': ' + formattedMessage;
+  if (users[message.user] && users[message.user].nick) {
+    nick = users[message.user].nick + ': ';
+  }
+  return '[' + timestamp(message.sent) + '] ' + nick + formattedMessage;
 }
 
 
