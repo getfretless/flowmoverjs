@@ -1,29 +1,36 @@
 
 var argv = require('yargs')
   .usage('Usage: $0 [options]')
-  .example('$0 -o console', 'Reformat and output messages to the screen (as a preview, or can be piped to a file)')
-  .example('$0 -o file', 'Reformat and output messages to a file (chatlog.txt) by default')
-  .example('$0 -o file -f export.txt', 'Reformat and output messages to a specified filename (export.txt)')
-  .example('$0 -o flow', 'Reformat and output messages to a new flow as the user specified in `config.json`')
+  .example('$0 -e me@example.com -p myPas$w0rd -f \'My flow\' -o log', 'Reformat and output messages to the screen (as a preview, or can be piped to a file)')
+  .example('$0 -e me@example.com -p myPas$w0rd -f \'My flow\' -o log > export.txt', 'Reformat and output messages to a specified filename')
+  .example('$0 -e me@example.com -p myPas$w0rd -f \'My flow\' -o flow', 'Reformat and output messages to the `My Flow` flow')
+  .options('e', {
+    alias: 'email',
+    required: true,
+    description: 'Email of user to connect to Flowdock API with'
+  })
+  .options('p', {
+    alias: 'password',
+    required: true,
+    description: 'Password to connect to Flowdock API with'
+  })
+  .options('f', {
+    alias: 'flow',
+    required: true,
+    description: 'Flowdock flow (room) to scan for users and post to'
+  })
   .options('o', {
     alias: 'output',
     required: true,
-    description: 'Output log to one of (log|console|flow)'
-  })
-  .options('f', {
-    alias: 'file',
-    default: 'chatlog.txt',
-    description: 'Export messages to an IRC-style text file'
+    description: 'Output log to one of (log|flow)'
   })
   .argv;
 
-var config = require('./config.json');
 var oldFlowContents = require('./messages.json');
-
 var moment = require('moment');
 var fs = require('fs');
 var Session = require('flowdock').Session;
-var session = new Session(config.email, config.password);
+var session = new Session(argv.email, argv.password);
 
 function getFlow(session, flowName, callback) {
   var foundFlow;
@@ -72,15 +79,12 @@ function formatMessage(message, users) {
 }
 
 
-getFlow(session, config.flowName, function(flow){
+getFlow(session, argv.room, function(flow){
   getUsers(session, function(users) {
     oldFlowContents.map(function(message) {
       var msg = formatMessage(message, users);
-      if (argv.output === 'console') {
+      if (argv.output === 'log') {
         console.log(msg);
-      }
-      if (argv.output === 'file') {
-        fs.appendFileSync(argv.file, msg + "\n", encoding='utf8')
       }
       if (argv.output === 'flow') {
         session.message(flow.id, msg);
