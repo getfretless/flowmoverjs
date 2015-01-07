@@ -95,7 +95,7 @@ function formatMessage(message, users) {
   } else if (message.event === 'mail') {
     formattedMessage = message.content.subject;
   } else {
-    formattedMessage = 'Unknown message type: ' + message;
+    formattedMessage = 'Unknown message type: ';
     console.log(message);
   }
   return '[' + timestamp(message.sent) + '] ' + formattedMessage;
