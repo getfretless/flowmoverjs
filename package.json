@@ -1,0 +1,19 @@
+{
+  "name": "flowmover",
+  "version": "1.0.0",
+  "description": "NodeJS tool to restore Flowdock export messages.json files to a new flow or a chatlog text file",
+  "main": "flowmover.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Flowdock"
+  ],
+  "author": "David Jones",
+  "license": "MIT",
+  "dependencies": {
+    "flowdock": "latest",
+    "moment": "latest",
+    "yargs": "latest"
+  }
+}
