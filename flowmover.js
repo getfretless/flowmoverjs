@@ -60,24 +60,27 @@ function timestamp(unixtime) {
 
 function formatMessage(message, users) {
   var formattedMessage = '', nick = '';
+  if (users[message.user] && users[message.user].nick) {
+    nick = users[message.user].nick;
+  }
   if (message.event === 'action') {
     if (message.content.type === 'invite') {
-      formattedMessage = 'Invited '+ message.content.email + ' to flow.';
+      formattedMessage = nick + ' invited '+ message.content.email + ' to flow.';
     } else if (message.content.type === 'join') {
-      formattedMessage = 'joined the flow.';
+      formattedMessage = nick + ' joined the flow.';
     }
   } else if (message.event === 'file') {
-    formattedMessage = 'Uploaded file ' + message.content.file_name;
+    formattedMessage = nick + ' uploaded file ' + message.content.file_name;
   } else if (message.event === 'comment') {
-    formattedMessage = message.content.text;
+    formattedMessage = nick + ': ' + message.content.text;
   } else if (message.event === 'message') {
-    formattedMessage = message.content;
+    formattedMessage = nick + ': ' + message.content;
   } else if (message.event === 'user-edit') {
     formattedMessage = message.content.user.name + ' is now known as ' + message.content.user.nick;
   } else if (message.event === 'rss') {
     formattedMessage = 'RSS:' + message.content.title + ' posted to ' + message.content.link;
   } else if (message.event === 'line') {
-    formattedMessage = message.content;
+    formattedMessage = nick + ' ' + message.content;
   } else if (message.event === 'vcs') {
     if (message.content.pusher && message.content.pusher.name) {
       formattedMessage = message.content.pusher.name + ' pushed some commits to ' + message.content.compare;
@@ -95,10 +98,7 @@ function formatMessage(message, users) {
     formattedMessage = 'Unknown message type: ' + message;
     console.log(message);
   }
-  if (users[message.user] && users[message.user].nick) {
-    nick = users[message.user].nick + ': ';
-  }
-  return '[' + timestamp(message.sent) + '] ' + nick + formattedMessage;
+  return '[' + timestamp(message.sent) + '] ' + formattedMessage;
 }
 
 
